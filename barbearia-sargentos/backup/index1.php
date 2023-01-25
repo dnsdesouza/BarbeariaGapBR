@@ -1,0 +1,213 @@
+<!DOCTYPE>
+<html>
+<head>
+	 <link rel="shortcut icon" type="image/vnd.microsoft.icon" href="/img/tesoura.png" />
+	<title>Barbearia GAP-BR</title>
+	<meta http-equiv=”Content-Type” content=”text/html; charset=UTF-8″>
+	<meta http-equiv=”Content-Type” content=”text/html; charset=iso-8859-1″>	
+	<link rel="stylesheet" type="text/css" href="css/style.css">
+	<!--link rel="stylesheet" type="text/css" href="/css/materialize.min.css"-->
+	
+</head>
+</html>
+<body onunload="window.opener.location.reload(true);" id="ajustes">
+
+	<script type="text/javascript" src="../js/wz_tooltip.js"></script>
+	<?php 
+
+	header("Content-Type: text/html; charset=UTF-8");
+	require_once("funcoes.php");
+	require_once("php/conecta.php");
+	session_start();
+
+$ip = $_SERVER['REMOTE_ADDR'];
+echo $hostname = gethostbyaddr($ip);
+
+//------------------- SELECIONA O ID DO POSTO GRADUAÇÃO DA TABELA MILITAR ----------------------------
+$consulta_posto = "SELECT posto FROM militar";
+$result_consulta_posto = mysqli_query ($conexao, $consulta_posto);
+$resultado_posto = mysqli_fetch_assoc($result_consulta_posto);
+// $result_posto = $resultado_posto['posto'];
+$total_posto = mysqli_num_rows($result_consulta_posto);
+
+if($total_posto > 0) {
+	do { 
+		
+	}while($resultado_posto = mysqli_fetch_assoc($result_consulta_posto));
+}
+
+//-----------------------------------------------------------------------------------------------------
+
+
+ function verifica_dia($dia, $hora){ //Verifica se o dia e a hora está disponível
+
+
+ 	include ("php/conecta.php");
+
+ 	$sql = "SELECT * FROM Militar_dia WHERE horario = '$hora' AND dia = '$dia'";
+ 	$result = $conexao->query($sql);
+ 	$row = $result->fetch_assoc();
+
+ 	if($result->num_rows > 0){
+ 		return array(strtoupper($row['nome_guerra']), $row['secao'], $row['ramal']);
+
+ 	}else{
+
+ 		return array("","","");
+ 	}
+ 	$result->close();
+ 	$conexao->close();
+ }
+ 
+
+
+ function gera_semana(){
+
+ 	$segunda = segunda(date("d-m-Y"));
+ 	$diasemana = array('Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sabado');
+	$horario = array('08:30', '09:00', '09:30', '10:00', '10:30', '11:00');
+	$horarioSaQ = array('14:00', '14:30', '15:00');
+	//echo $horario;
+	//echo $segunda;
+	//echo $diasemana;
+
+ 	?>
+ 	
+ 	<div class="form">
+ 	<div class="ajustes">
+ 		<div class="news" id="tabela">
+ 	<h1 class="title">BARBEARIA DO GAP-BR <br> GRADUADOS RAMAL 2691<!-- <img src="../img/gapdf.png" width="70" height="70" /> --></h1>
+ 
+ 	<div class="images"></div> 
+
+
+	 <table border="1">
+ 		<thead>
+
+ 			<tr> 
+ 				<td><b> Segunda <?php echo " - ".date('d/m', strtotime($segunda)) ?> </td>
+ 					<td><b> Terça <?php echo " - ".date('d/m', strtotime('+1 days', strtotime($segunda))) ?> </td>
+ 						<td><b> Quarta <?php echo " - ".date('d/m', strtotime('+2 days', strtotime($segunda))) ?></td>
+ 							<td><b> Quinta <?php echo " - ".date('d/m', strtotime('+3 days', strtotime($segunda))) ?></td>		
+ 								<td><b> Sexta <?php echo " - ".date('d/m', strtotime('+4 days', strtotime($segunda))) ?> </b></td>
+ 							</tr>				
+ 						</thead>
+ 						<?php 
+ 						$i = 0;
+ 						while($i <= 2){
+
+				//SEGUNDA
+ 							$militar_segunda = verifica_dia(date('Y-m-d', strtotime($segunda)), $horarioSaQ[$i]);
+ 							 /*if($horarioSaQ[$i] == "17" || $horario[$i] == "17:30" || $horario[$i] == "18:30" ){
+								echo "<td><font color=\"red\"><b>Não disponivel</b></td>";
+							 }*/
+ 							 if( $militar_segunda[0]){
+								 echo "<tr> <td><b> <div align=\"center\" onmouseover=\"Tip('$horarioSaQ[$i] <br> $militar_segunda[1] <br> ', WIDTH, 160)\" onmouseout=\"UnTip()\" > $militar_segunda[0] </div></b> </td>";
+ 							 }/*else if($horarioSaQ[$i] == "Não_disponível"){
+ 								echo "<tr> <td align=\"center\"><INPUT type=button value=".$horarioSaQ[$i]." onclick=;\" style=\"font-family: Verdana; font-size: 10 pt; background-color: white; color: navy; border: 1 solid D2C8C9;\"></td>";
+ 							}*/else{
+ 								echo "<tr> <td align=\"center\"><INPUT type=button value=".$horarioSaQ[$i]." onclick=\"window.open('http://barbearia-sargentos.gapbr.intraer/cadastro.php?hora=".$horarioSaQ[$i]."&dia=".$segunda."', 'Pagina', 'STATUS=NO, TOOLBAR=NO, LOCATION=NO, DIRECTORIES=NO, RESISABLE=NO, SCROLLBARS=YES, TOP=10, LEFT=10, WIDTH=770, HEIGHT=400');\" style=\"font-family: Verdana; font-size: 10 pt; background-color: white; color: navy; border: 1 solid D2C8C9;\"></td>";
+
+							}
+
+				//TERÇA 
+				
+ 							$militar_terca = verifica_dia(date('Y-m-d', strtotime('+1 days', strtotime($segunda))), $horarioSaQ[$i]);
+							$militar_terca[0] = $militar_terca[0];
+							/*if($horario[$i] == "18:00" || $horario[$i] == "17:30" || $horario[$i] == "18:30" ){
+							 	echo "<td><font color=\"red\"><b>-</b></font></td>";
+							}*/
+							// elseif($horario[$i] == "11:30"){
+							// 	echo "<td><font color=\"red\"><b>Almoço</b></td>";
+							// }
+							if(isset($militar_terca[0]) && $militar_terca[0] != ""){
+ 								echo "<td> <b> <div align=\"center\" onmouseover=\"Tip('$horarioSaQ[$i] <br> $militar_terca[1] ', WIDTH, 160)\" onmouseout=\"UnTip()\" > $militar_terca[0] </div> </b> </td>";
+ 							}else if($horarioSaQ[$i] == "Não_disponível"){
+                                                                echo " <td align=\"center\"><INPUT type=button value=".$horarioSaQ[$i]." onclick=;\" style=\"font-family: Verdana; font-size: 10 pt; background-color: white; color: navy; border: 1 solid D2C8C9;\"></td>";
+                                                        }else{
+ 								echo " <td align=\"center\"><INPUT type=button value=".$horarioSaQ[$i]." onclick=\"window.open('http://barbearia-sargentos.gapbr.intraer/cadastro.php?hora=".$horarioSaQ[$i]."&dia=".date('d-m-Y', strtotime('+1 days', strtotime($segunda)))."', 'Pagina', 'STATUS=NO, TOOLBAR=NO, LOCATION=NO, DIRECTORIES=NO, RESISABLE=NO, SCROLLBARS=YES, TOP=10, LEFT=10, WIDTH=770, HEIGHT=400');\" style=\"font-family: Verdana; font-size: 10 pt; background-color: white; color: navy; border: 1 solid D2C8C9;\"></td> ";
+							 }
+				
+				//QUARTA
+							$militar_quarta = verifica_dia(date('Y-m-d', strtotime('+2 days', strtotime($segunda))), $horarioSaQ[$i]);
+							$militar_quarta[0] = $militar_quarta[0];
+ 							/*if($horario[$i] == "18:00" || $horario[$i] == "17:30" || $horario[$i] == "18:30" ){
+							 	echo "<td><font color=\"red\"><b>-</b></td>";
+							}*/
+ 							if($militar_quarta[0] != ""){
+ 								echo "<td> <b> <div align=\"center\" onmouseover=\"Tip('$horarioSaQ[$i] <br> $militar_quarta[1] ', WIDTH, 160)\" onmouseout=\"UnTip()\" > $militar_quarta[0] </div> </b> </td>";
+ 							}else if($horarioSaQ[$i] == "Não_disponível"){
+                                                                echo " <td align=\"center\"><INPUT type=button value=".$horarioSaQ[$i]." onclick=;\" style=\"font-family: Verdana; font-size: 10 pt; background-color: white; color: navy; border: 1 solid D2C8C9;\"></td>";
+                                                        }else{
+ 								echo " <td align=\"center\"><INPUT type=button value=".$horarioSaQ[$i]." onclick=\"window.open('http://barbearia-sargentos.gapbr.intraer/cadastro.php?hora=".$horarioSaQ[$i]."&dia=".date('d-m-Y', strtotime('+2 days', strtotime($segunda)))."', 'Pagina', 'STATUS=NO, TOOLBAR=NO, LOCATION=NO, DIRECTORIES=NO, RESISABLE=NO, SCROLLBARS=YES, TOP=10, LEFT=10, WIDTH=770, HEIGHT=400');\" style=\"font-family: Verdana; font-size: 10 pt; background-color: white; color: navy; border: 1 solid D2C8C9;\"></td> ";
+							 }
+				//QUINTA
+							$militar_quinta = verifica_dia(date('Y-m-d', strtotime('+3 days', strtotime($segunda))), $horarioSaQ[$i]);
+							$militar_quinta[0] = $militar_quinta[0];
+							/*if($horario[$i] == "18:00" || $horario[$i] == "17:30" || $horario[$i] == "18:30" ){
+							   echo "<td><font color=\"red\"><b>-</b></td>";
+							}*/
+							if($militar_quinta[0] != ""){
+								echo "<td> <b> <div align=\"center\" onmouseover=\"Tip('$horarioSaQ[$i] <br> $militar_quinta[1] ', WIDTH, 160)\" onmouseout=\"UnTip()\" > $militar_quinta[0] </div> </b> </td>";
+							}else if($horarioSaQ[$i] == "Não_disponível"){
+                                                                echo " <td align=\"center\"><INPUT type=button value=".$horarioSaQ[$i]." onclick=;\" style=\"font-family: Verdana; font-size: 10 pt; background-color: white; color: navy; border: 1 solid D2C8C9;\"></td>";
+                                                        }else{
+								echo " <td align=\"center\"><INPUT type=button value=".$horarioSaQ[$i]." onclick=\"window.open('http://barbearia-sargentos.gapbr.intraer/cadastro.php?hora=".$horarioSaQ[$i]."&dia=".date('d-m-Y', strtotime('+3 days', strtotime($segunda)))."', 'Pagina', 'STATUS=NO, TOOLBAR=NO, LOCATION=NO, DIRECTORIES=NO, RESISABLE=NO, SCROLLBARS=YES, TOP=10, LEFT=10, WIDTH=770, HEIGHT=400');\" style=\"font-family: Verdana; font-size: 10 pt; background-color: white; color: navy; border: 1 solid D2C8C9;\"></td> ";
+							 }
+
+				//SEXTA
+
+							$i = $i - 7;// expediente manha
+							$militar_sexta = verifica_dia(date('Y-m-d', strtotime('+4 days', strtotime($segunda))), $horario[$i]);
+
+ 
+							if($horario[$i] == "08:00" || $horario[$i] == "12:00" /*|| $horario[$i] == "08:00" || $horario[$i] == "08:45"*/  ){
+								echo "<td><font color=\"red\"><b>--</b></td>";
+							}
+							 else 
+							if($militar_sexta[0] != ""){
+ 								echo "<td> <b> <div align=\"center\" onmouseover=\"Tip('$horario[$i] <br> $militar_sexta[1] ', WIDTH, 160)\" onmouseout=\"UnTip()\" > $militar_sexta[0] </div> </b> </td> </tr>";
+ 							}else{
+ 								echo " <td align=\"center\"><INPUT type=button value=".$horario[$i]." onclick=\"window.open('http://barbearia-sargentos.gapbr.intraer/cadastro.php?hora=".$horario[$i]."&dia=".date('d-m-Y', strtotime('+4 days', strtotime($segunda)))."', 'Pagina', 'STATUS=NO, TOOLBAR=NO, LOCATION=NO, DIRECTORIES=NO, RESISABLE=NO, SCROLLBARS=YES, TOP=10, LEFT=10, WIDTH=770, HEIGHT=400');\" style=\"font-family: Verdana; font-size: 10 pt; background-color: white; color: navy; border: 1 solid D2C8C9;\"></td> </tr> ";
+							 }
+							  $i = $i + 6; //expediente manha 
+							
+ 							$i ++;
+ 						}
+
+ 						?>
+
+					</table>
+					
+ 				</div>
+ 				</div>
+ 				</div>
+
+ 					<?php
+ 				}
+ 				gera_semana();
+
+//-------------------- SELECIONA A DESCRIÇÃO DO POSTO GRADUAÇÃO DA TABELA POSTO -----------------------
+
+ 				$query_descricao_posto = "SELECT  posto.descricao FROM militar INNER JOIN posto WHERE id_posto= posto ";
+ 				$result_descricao_posto = mysqli_query($conexao, $query_descricao_posto) or die (mysqli_error());
+ 				$resultado_descricao = mysqli_fetch_assoc($result_descricao_posto);
+//$descricao_posto = $resultado_descricao['descricao'];
+ 				$total_descricao = mysqli_num_rows($result_descricao_posto);
+
+ 				if($total_descricao > 0) {
+ 					do { 
+
+ 					}while($resultado_descricao = mysqli_fetch_assoc($result_descricao_posto));
+ 				}
+
+ 				echo "<br>";
+//echo $descricao_posto;
+
+//------------------------------------------------------------------------------------------------------
+
+//-------------------- SELECIONA TODOS OS DADOS DA TABELA MILITAR -------------------------------------
+ 				$sql="SELECT posto.descricao AS posto_desc, militar.horario AS horario, militar.nome_guerra AS nome_guerra, militar.om AS om, militar.secao AS secao, militar.ramal AS ramal, militar.saram AS saram, militar.data AS data_corte FROM militar INNER JOIN posto WHERE militar.posto = posto.id_posto";
+ 				?>
+ 			</body>
+ 			<?php mysqli_close($conexao); ?>
